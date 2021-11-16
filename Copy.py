@@ -38,6 +38,7 @@ def upload_form():
 progressive = False
 @app.route('/', methods=['GET','POST'])
 def file():
+   canSendEmail = False
    global correctPoints, incorrectPoints
    if request.method == 'POST':
       if 'files[]' not in request.files:
@@ -69,26 +70,34 @@ def file():
       flash('File(s) successfully uploaded')
 
       if "roll wise" in request.form:
+         canSendEmail = True
          customUtils.progressive = False
          print(f"progressive#2: {customUtils.progressive}")
          customUtils.mainFn(correctPoints, incorrectPoints)
          flash('RN wise done')
 
       if "concise" in request.form:
+         canSendEmail = True
          print(f"progressive#3: {customUtils.progressive}")
          customUtils.callConcise(correctPoints, incorrectPoints)
          flash('Concise done')
 
       if "mail" in request.form:
-         rmMap = customUtils.rollEmailMap
-         print("Printing rolMap")
+          if canSendEmail:
+             rmMap = customUtils.rollEmailMap
+             print("Printing rolMap")
 
-         for roll in rmMap:
-             print(roll, rmMap[roll])
+             for roll in rmMap:
+                 print(roll, rmMap[roll])
 
-         sendmails(rmMap)
-         customUtils.progressive = False
-         flash('Mails done')
+             sendmails(rmMap)
+             customUtils.progressive = False
+             flash('Mails done')
+          else:
+               print("-------------")
+               print("INVALID ENTRY")
+               print("-------------")
+               flash("Input ALL THE Fields")
 
 
    return redirect('/')
