@@ -35,10 +35,8 @@ def allowed_file(filename):
 def upload_form():
    return render_template('upload.html')
 
-progressive = False
 @app.route('/', methods=['GET','POST'])
 def file():
-   canSendEmail = False
    global correctPoints, incorrectPoints
    if request.method == 'POST':
       if 'files[]' not in request.files:
@@ -46,10 +44,10 @@ def file():
           return redirect(request.url)
       files = request.files.getlist('files[]')
 
-      print(f"progressive#1: {customUtils.progressive}")
+      print(f"canSendEmails#1: {customUtils.canSendEmails}")
       # Marks field- Number or empty | if number => int (correctly working) | if empty then wo usko as a string read kar raha hai => int mein cast kar rahe hain
       print(type(request.form['pos']))
-      # if (isinstance(request.form['pos'], int)) or progressive:
+      # if (isinstance(request.form['pos'], int)) or canSendEmails:
           # correctPoints = int(request.form['pos'])
       # else: 
           # correctPoints = ""
@@ -70,20 +68,19 @@ def file():
       flash('File(s) successfully uploaded')
 
       if "roll wise" in request.form:
-         canSendEmail = True
-         customUtils.progressive = False
-         print(f"progressive#2: {customUtils.progressive}")
+         customUtils.canSendEmails = True
+         print(f"canSendEmails#2: {customUtils.canSendEmails}")
          customUtils.mainFn(correctPoints, incorrectPoints)
          flash('RN wise done')
 
       if "concise" in request.form:
-         canSendEmail = True
-         print(f"progressive#3: {customUtils.progressive}")
+         customUtils.canSendEmails = True
+         print(f"canSendEmails#3: {customUtils.canSendEmails}")
          customUtils.callConcise(correctPoints, incorrectPoints)
          flash('Concise done')
 
       if "mail" in request.form:
-          if canSendEmail:
+          if customUtils.canSendEmails:
              rmMap = customUtils.rollEmailMap
              print("Printing rolMap")
 
@@ -91,8 +88,8 @@ def file():
                  print(roll, rmMap[roll])
 
              sendmails(rmMap)
-             customUtils.progressive = False
              flash('Mails done')
+             customUtils.canSendEmails = False
           else:
                print("-------------")
                print("INVALID ENTRY")
@@ -105,10 +102,11 @@ def file():
 mail = Mail(app) # instantiate the mail class
 
 # configuration of mail
+senda = "" # enter your email address here
 app.config['MAIL_SERVER']='stud.iitp.ac.in'
 app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'csxxx20xx@gmail.com'
-app.config['MAIL_PASSWORD'] = 'Whatever123'
+app.config['MAIL_USERNAME'] = senda
+app.config['MAIL_PASSWORD'] = '' # enter your password here
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 mail = Mail(app)
@@ -119,11 +117,11 @@ def sendmails(rollMailMap):
     ansDir = os.path.join(os.getcwd(), "ans")
     resultDir = os.path.join(ansDir, "result")
     for key in rollMailMap:
-        msg = Message("Quiz Result Out", sender="csxxx20xx@gmail.com", recipients=['stvayush@gmail.com'])
+        msg = Message("Quiz Result Out", sender=senda, recipients=['stvayush@gmail.com'])
         msg.body = f"Dear Student,\nCSXXX 20XX recent paper marks are attached for reference.\n+{correctPoints} Correct, -{incorrectPoints} for wrong."
         resFileName = os.path.join(resultDir, str(key) + ".xlsx")
         with app.open_resource(resFileName) as fp:
-            msg.attach(resFileName, "application/xlsx", fp.read())
+            msg.attach(str(key) + ".xlsx", "application/xlsx", fp.read())
         mail.send(msg)
     return "mails sent"
    # return 'Sent'

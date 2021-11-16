@@ -26,7 +26,7 @@ rootDir = os.path.join(pwd, "ans")
 ansDir = os.path.join(rootDir, "result")
 
 absentNameRollMap, concMs, styless = {}, {}, {}
-progressive = False
+canSendEmails = False
 rollWiseDone = False
 global cachedNm, cachedPm, rollEmailMap
 rollEmailMap = {}
