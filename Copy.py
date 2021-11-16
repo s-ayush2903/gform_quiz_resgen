@@ -7,7 +7,6 @@ import shutil
 import csv
 import openpyxl
 from openpyxl.drawing.image import Image
-
 from openpyxl.styles import Alignment, Border, Font, NamedStyle, Side
 import os
 
@@ -64,20 +63,19 @@ def file():
          if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
       flash('File(s) successfully uploaded')
 
       if "roll wise" in request.form:
          customUtils.canSendEmails = True
          print(f"canSendEmails#2: {customUtils.canSendEmails}")
          customUtils.mainFn(correctPoints, incorrectPoints)
-         flash('RN wise done')
+         flash('Roll Number Wise Marksheet generated')
 
       if "concise" in request.form:
          customUtils.canSendEmails = True
          print(f"canSendEmails#3: {customUtils.canSendEmails}")
          customUtils.callConcise(correctPoints, incorrectPoints)
-         flash('Concise done')
+         flash('Concise Marksheet generated')
 
       if "mail" in request.form:
           if customUtils.canSendEmails:
