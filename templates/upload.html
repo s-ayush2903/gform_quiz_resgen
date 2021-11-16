@@ -24,6 +24,7 @@
     {% endwith %}
 	</p>
 	<div class="center">
+        <img src={{url_for('static',filename = '/instiLogo.jpeg')}} alt="Institue Logo"><br><br><br>
 	<form action = "http://localhost:5000/" method = "POST" enctype = "multipart/form-data">
 		<p style="text-align:center;">Upload Files(Master_Roll.CSV & Respone.CSV) <input type = "file" name = "files[]" multiple="true"/>
 		<input type = "submit"/>

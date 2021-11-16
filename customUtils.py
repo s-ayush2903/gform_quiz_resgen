@@ -4,7 +4,6 @@ import shutil
 
 from flask import Flask, flash, request, redirect, render_template
 from werkzeug.utils import secure_filename
-# from flask_mail import Mail
 import shutil
 import csv
 import openpyxl
@@ -16,6 +15,10 @@ colls = ["A", "B", "C", "D", "E"]
 ans = []
 
 pwd = os.getcwd()
+
+# stores insti logo
+baseDir = os.path.join(pwd, "assets")
+
 uploadDir = os.path.join(pwd, "uploads")
 fle = os.path.join(uploadDir, "responses.csv")
 master = os.path.join(uploadDir, "master_roll.csv")
@@ -24,7 +27,9 @@ ansDir = os.path.join(rootDir, "result")
 
 absentNameRollMap, concMs, styless = {}, {}, {}
 progressive = False
-global cachedNm, cachedPm
+rollWiseDone = False
+global cachedNm, cachedPm, rollEmailMap
+rollEmailMap = {}
 
 def getStyle(style):
     bd = Side(style="thin")
@@ -64,9 +69,13 @@ def prepareQuizResult(rollNo, line=[], absent=False):
     wb = openpyxl.Workbook()
     sheet = wb.active
     fileName = os.path.join(ansDir, rollNo + ".xlsx")
+
+    if not absent:
+        rollEmailMap[rollNo] = [line[1], line[4]]
+
     for cul in colls:
         sheet.column_dimensions[cul].width = 18
-    sheet.add_image(Image(os.path.join(pwd, "instiLogo.jpeg")), "A1")
+    sheet.add_image(Image(os.path.join(baseDir, "instiLogo.jpeg")), "A1")
     sheet.merge_cells("A5:E5")
     sheet["A5"] = "Marksheet"
     sheet["A5"].font = Font(name="Century", size=18, bold=True, underline="single")
@@ -192,7 +201,6 @@ def prepareResultForPresentStudents() -> bool:
             prepareQuizResult(line[6], line)
     return True
 
-
 def processLeft():
     files = os.listdir(ansDir)
     for index, conts in enumerate(csv.reader(open(master))):
@@ -227,11 +235,19 @@ def mainFn(cpts, incPts):
     incorPoints = incPts
     response = prepareResultForPresentStudents()
     if response:
-        processLeft()
-        prepareConciseMarksheet()
-        archiveRes()
-        print(os.listdir(ansDir))
+        rollWiseDone = True
+        # processLeft()
+        # prepareConciseMarksheet()
+        # archiveRes()
+        # print(os.listdir(ansDir))
     else:
         return false
         print("fy and grow up")
 
+def callConcise(cpts, incPts):
+    if not rollWiseDone:
+        mainFn(cpts, incPts)
+    processLeft()
+    prepareConciseMarksheet()
+    archiveRes()
+    return True
