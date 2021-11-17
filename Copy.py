@@ -38,18 +38,16 @@ def upload_form():
 def file():
    global correctPoints, incorrectPoints
    if request.method == 'POST':
-      if 'files[]' not in request.files:
+      rf = str(request.files)
+      if ('files[]' not in rf) or ('octet-stream' in rf) and (not os.listdir(UPLOAD_FOLDER)):
           flash('No file part')
-          return redirect(request.url)
-      files = request.files.getlist('files[]')
+          return redirect("/")
 
+      files = request.files.getlist('files[]')
+      print(f"---files: {files}")
       print(f"canSendEmails#1: {customUtils.canSendEmails}")
-      # Marks field- Number or empty | if number => int (correctly working) | if empty then wo usko as a string read kar raha hai => int mein cast kar rahe hain
+
       print(type(request.form['pos']))
-      # if (isinstance(request.form['pos'], int)) or canSendEmails:
-          # correctPoints = int(request.form['pos'])
-      # else: 
-          # correctPoints = ""
       correctPoints = (int(request.form['pos']) if request.form['pos'] != "" else customUtils.cachedPm)
       incorrectPoints = (int(request.form['neg']) if request.form['neg'] != "" else customUtils.cachedNm)
       customUtils.cachedPm = correctPoints
@@ -63,7 +61,7 @@ def file():
          if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-      flash('File(s) successfully uploaded')
+            flash('File(s) successfully uploaded')
 
       if "roll wise" in request.form:
          customUtils.canSendEmails = True
@@ -78,7 +76,7 @@ def file():
          flash('Concise Marksheet generated')
 
       if "mail" in request.form:
-          if customUtils.canSendEmails:
+          if os.path.exists(customUtils.rootDir):
              rmMap = customUtils.rollEmailMap
              print("Printing rolMap")
 
@@ -92,7 +90,7 @@ def file():
                print("-------------")
                print("INVALID ENTRY")
                print("-------------")
-               flash("Input ALL THE Fields")
+               flash("Please generate result first!")
 
 
    return redirect('/')
@@ -115,7 +113,7 @@ def sendmails(rollMailMap):
     ansDir = os.path.join(os.getcwd(), "ans")
     resultDir = os.path.join(ansDir, "result")
     for key in rollMailMap:
-        msg = Message("Quiz Result Out", sender=senda, recipients=['stvayush@gmail.com'])
+        msg = Message("Quiz Result Out", sender=senda, recipients=[rollMailMap[key]])
         msg.body = f"Dear Student,\nCSXXX 20XX recent paper marks are attached for reference.\n+{correctPoints} Correct, -{incorrectPoints} for wrong."
         resFileName = os.path.join(resultDir, str(key) + ".xlsx")
         with app.open_resource(resFileName) as fp:

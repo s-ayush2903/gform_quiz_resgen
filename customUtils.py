@@ -133,10 +133,12 @@ def prepareQuizResult(rollNo, line=[], absent=False):
         for col in colls:
             if col == "A" or col == "D" or col == "E":
                 if col == "A":
-                    sheet["A10"] = "No."
-                    sheet["A11"] = "Marking"
-                    sheet["A12"] = "Total"
-                    continue
+                    if inr == 10:
+                        sheet[col + str(inr)] = "No."
+                    if inr == 11:
+                        sheet[col + str(inr)] = "Marking"
+                    if inr == 12:
+                        sheet[col + str(inr)] = "Total"
                 if col == "D" and inr != 9:
                     sheet[col + str(inr)].style = getStyle("normal")
                 else:
