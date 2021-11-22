@@ -20,20 +20,21 @@
 				document.getElementById("InCorrAns").value = "1";
 			}
 		}
-		function Check()
-		{
-			
-			agar generate roll wali button click kari hai tab he iss ko chalana
-		}
-		function errorMessage() 
-		{
-			alert("Please first generate Roll Number Wise Marksheet")
-        }
 		</script>
 		<title>GUI Based Marksheet Generator</title>
 	</head>
 	<body>
-	<p>
+	<div class="center">
+        <img src={{url_for('static',filename = '/instiLogo.jpeg')}} alt="Institue Logo"><br><br><br>
+	<form action = "http://localhost:5000/" method = "POST" enctype = "multipart/form-data">
+		<p style="text-align:center;">Upload Files(Master_Roll.CSV & Respone.CSV) <input type = "file" name = "files[]" multiple="true"/>
+		<p style="text-align:center;">Marks for Correct Answer: <input type = "number" id = "CorrAns" step="any" min="0" oninput="this.value = Math.abs(this.value)"name = "pos" />
+		<p style="text-align:center;">Negative Marks for Wrong Answer: <input type = "number" id = "InCorrAns" step="any" min="0" oninput="this.value = Math.abs(this.value)"name = "neg" /><br>
+		<button type = "submit" onclick = "Default()">Upload</button>
+		<p style="text-align:center;"><button type="submit" name="roll wise">Generate Roll Number Wise Marksheet</button>
+		<p style="text-align:center;"><button type="submit" name="concise" >Generate Concise Marksheet</button>
+		<p style="text-align:center;"><button type="submit" name="mail">Send Email</button>	
+		<p>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
         <ul class=flashes>
@@ -44,16 +45,6 @@
       {% endif %}
     {% endwith %}
 	</p>
-	<div class="center">
-        <img src={{url_for('static',filename = '/instiLogo.jpeg')}} alt="Institue Logo"><br><br><br>
-	<form action = "http://localhost:5000/" method = "POST" enctype = "multipart/form-data">
-		<p style="text-align:center;">Upload Files(Master_Roll.CSV & Respone.CSV) <input type = "file" name = "files[]" multiple="true"/>
-		<p style="text-align:center;">Marks for Correct Answer: <input type = "number" id = "CorrAns" step="any" min="0" oninput="this.value = Math.abs(this.value)"name = "pos" />
-		<p style="text-align:center;">Negative Marks for Wrong Answer: <input type = "number" id = "InCorrAns" step="any" min="0" oninput="this.value = Math.abs(this.value)"name = "neg" /><br>
-		<button type = "submit" onclick = "Default()">Upload</button>
-		<p style="text-align:center;"><button type="submit" name="roll wise">Generate Roll Number Wise Marksheet</button>
-		<p style="text-align:center;"><button type="submit" name="concise" >Generate Concise Marksheet</button>
-		<p style="text-align:center;"><button type="submit" name="mail" onclick = "Check();errorMessage();">Send Email</button>	
 	</form>
 	</div>  
 	</body>
