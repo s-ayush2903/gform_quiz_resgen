@@ -1,11 +1,6 @@
 import csv
 import os
 import shutil
-
-from flask import Flask, flash, request, redirect, render_template
-from werkzeug.utils import secure_filename
-import shutil
-import csv
 import openpyxl
 from openpyxl.drawing.image import Image
 
@@ -133,10 +128,12 @@ def prepareQuizResult(rollNo, line=[], absent=False):
         for col in colls:
             if col == "A" or col == "D" or col == "E":
                 if col == "A":
-                    sheet["A10"] = "No."
-                    sheet["A11"] = "Marking"
-                    sheet["A12"] = "Total"
-                    continue
+                    if inr == 10:
+                        sheet[col + str(inr)] = "No."
+                    if inr == 11:
+                        sheet[col + str(inr)] = "Marking"
+                    if inr == 12:
+                        sheet[col + str(inr)] = "Total"
                 if col == "D" and inr != 9:
                     sheet[col + str(inr)].style = getStyle("normal")
                 else:
@@ -147,7 +144,7 @@ def prepareQuizResult(rollNo, line=[], absent=False):
                 elif inr == 11:
                     sheet[col + str(inr)] = corPoints
                 elif inr == 12:
-                    sheet[col + str(inr)] = int(sheet["B10"].value) * int(
+                    sheet[col + str(inr)] = (sheet["B10"].value) * (
                         sheet["B11"].value
                     )
                 sheet[col + str(inr)].style = getStyle("correct")
@@ -155,11 +152,10 @@ def prepareQuizResult(rollNo, line=[], absent=False):
                 if inr == 10:
                     sheet[col + str(inr)] = wrong
                 elif inr == 11:
-                    sheet[col + str(inr)] = "-" + str(incorPoints)
+                    sheet[col + str(inr)] = -1 * incorPoints
+                    # sheet[col + str(inr)] = "-" + str(incorPoints)
                 elif inr == 12:
-                    sheet[col + str(inr)] = int(sheet["C10"].value) * int(
-                        sheet["C11"].value
-                    )
+                    sheet[col + str(inr)] = (sheet["C10"].value) * (sheet["C11"].value)
                 sheet[col + str(inr)].style = getStyle("incorrect")
 
     sheet["D10"] = left
@@ -167,8 +163,8 @@ def prepareQuizResult(rollNo, line=[], absent=False):
     sheet["E10"].style = getStyle("normal")
     sheet["D11"] = 0
     sheet["D10"].style = getStyle("normal")
-    marks = int(cors) * int(corPoints) - int(wrong) * int(incorPoints)
-    tmarks = (cors + left + wrong) * int(corPoints)
+    marks = (cors) * (corPoints) - (wrong) * (incorPoints)
+    tmarks = (cors + left + wrong) * (corPoints)
     mstr = str(marks) + "/" + str(tmarks)
     sheet["E12"] = mstr if not absent else "Absent"
     sheet["E12"].style = getStyle("absolute")
@@ -203,9 +199,12 @@ def prepareResultForPresentStudents() -> bool:
 
 def processLeft():
     files = os.listdir(ansDir)
+    print("_______________________")
+    print("_______________________")
     for index, conts in enumerate(csv.reader(open(master))):
         if index > 1:
-            if conts[0] not in files:
+            if f"{conts[0].upper()}.xlsx" not in files:
+                print(f"noo, not found: {conts[0].upper()}")
                 absentNameRollMap[conts[0]] = conts[1]
                 prepareQuizResult(conts[0], absent=True)
 
@@ -229,8 +228,6 @@ def archiveRes():
 
 def mainFn(cpts, incPts):
     global corPoints, incorPoints
-    # corPoints = abs(int(input("enter val for correct questions: ")))
-    # incorPoints = abs(int(input("enter val for incorrect questions: ")))
     corPoints = cpts
     incorPoints = incPts
     response = prepareResultForPresentStudents()
@@ -251,3 +248,4 @@ def callConcise(cpts, incPts):
     prepareConciseMarksheet()
     archiveRes()
     return True
+

@@ -28,8 +28,8 @@
         <img src={{url_for('static',filename = '/instiLogo.jpeg')}} alt="Institue Logo"><br><br><br>
 	<form action = "http://localhost:5000/" method = "POST" enctype = "multipart/form-data">
 		<p style="text-align:center;">Upload Files(Master_Roll.CSV & Respone.CSV) <input type = "file" name = "files[]" multiple="true"/>
-		<p style="text-align:center;">Marks for Correct Answer: <input type = "number" id = "CorrAns" step="any" min="0" oninput="this.value = Math.abs(this.value)"name = "pos" />
-		<p style="text-align:center;">Negative Marks for Wrong Answer: <input type = "number" id = "InCorrAns" step="any" min="0" oninput="this.value = Math.abs(this.value)"name = "neg" /><br>
+		<p style="text-align:center;">Marks for Correct Answer: <input name = "pos" />
+		<p style="text-align:center;">Negative Marks for Wrong Answer: <input name = "neg" /><br>
 		<button type = "submit" onclick = "Default()">Upload</button>
 		<p style="text-align:center;"><button type="submit" name="roll wise">Generate Roll Number Wise Marksheet</button>
 		<p style="text-align:center;"><button type="submit" name="concise" >Generate Concise Marksheet</button>
