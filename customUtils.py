@@ -25,6 +25,9 @@ canSendEmails = False
 rollWiseDone = False
 global cachedNm, cachedPm, rollEmailMap
 rollEmailMap = {}
+ansList = {}    
+cmsList = {}
+summr = {}
 
 def getStyle(style):
     bd = Side(style="thin")
@@ -96,6 +99,12 @@ def prepareQuizResult(rollNo, line=[], absent=False):
     colL, colR = "A", "B"
     onceCompleted = False
 
+    for ind in range(6):
+        if rollNo not in cmsList:
+            cmsList[rollNo] = ""
+        entry = line[ind] if not absent else "Absent"
+        cmsList[rollNo] += f"{entry},"
+
     lst = line[7:] if not absent else ans
     for ind, val in enumerate(lst):
         temp = val.strip() if not absent else ""
@@ -112,6 +121,9 @@ def prepareQuizResult(rollNo, line=[], absent=False):
         sheet[str(colR + str(rowNum))] = str(ans[ind])
         sheet[colL + str(rowNum)] = temp
         sheet[colR + str(rowNum)].style = getStyle("absolute")
+        if rollNo not in ansList:
+           ansList[rollNo] = ""
+        ansList[rollNo] += f"{temp},"
 
         if temp == ans[ind]:
             sheet[colL + str(rowNum)].style = getStyle("correct")
@@ -153,7 +165,6 @@ def prepareQuizResult(rollNo, line=[], absent=False):
                     sheet[col + str(inr)] = wrong
                 elif inr == 11:
                     sheet[col + str(inr)] = -1 * incorPoints
-                    # sheet[col + str(inr)] = "-" + str(incorPoints)
                 elif inr == 12:
                     sheet[col + str(inr)] = (sheet["C10"].value) * (sheet["C11"].value)
                 sheet[col + str(inr)].style = getStyle("incorrect")
@@ -175,6 +186,11 @@ def prepareQuizResult(rollNo, line=[], absent=False):
         + ","
         + sheet["E12"].value
     )
+    
+    cmsList[rollNo] += f"{marks}"
+    if rollNo not in summr:
+        summr[rollNo] = []
+    summr[rollNo] = [cors, wrong, left]
     sheet.title = "quiz"
     wb.save(fileName)
 
@@ -200,7 +216,6 @@ def prepareResultForPresentStudents() -> bool:
 def processLeft():
     files = os.listdir(ansDir)
     print("_______________________")
-    print("_______________________")
     for index, conts in enumerate(csv.reader(open(master))):
         if index > 1:
             if f"{conts[0].upper()}.xlsx" not in files:
@@ -211,13 +226,16 @@ def processLeft():
 
 def prepareConciseMarksheet():
     concMsFile = os.path.join(rootDir, "concise_marksheet.csv")
+    lst = ""
+    for ind in range(cors + left + wrong):
+        lst += f"Unnamed {ind + 7},"
     if os.path.exists(concMsFile):
         os.remove(concMsFile)
     with open(concMsFile, "w") as cmfObj:
-        cmfObj.write("Roll,positive_marks,negative_marks,total_marks")
+        cmfObj.write(f"Timestamp,email,gScore,name,webmail,cont,negScore,roll,{str(lst)}statusAns")
         for roll in concMs:
             cmfObj.write("\n")
-            cmfObj.write(str(roll + "," + concMs[roll]))
+            cmfObj.write(str(cmsList[roll] + "," + roll + "," + ansList[roll] + str(summr[roll])))
     return concMs
 
 
