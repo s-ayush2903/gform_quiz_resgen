@@ -20,7 +20,9 @@
 				document.getElementById("InCorrAns").value = "1";
 			}
 		}
+		
 		</script>
+		
 		<title>GUI Based Marksheet Generator</title>
 	</head>
 	<body>
@@ -28,12 +30,12 @@
         <img src={{url_for('static',filename = '/instiLogo.jpeg')}} alt="Institue Logo"><br><br><br>
 	<form action = "http://localhost:5000/" method = "POST" enctype = "multipart/form-data">
 		<p style="text-align:center;">Upload Files(Master_Roll.CSV & Respone.CSV) <input type = "file" name = "files[]" multiple="true"/>
-		<p style="text-align:center;">Marks for Correct Answer: <input name = "pos" />
-		<p style="text-align:center;">Negative Marks for Wrong Answer: <input name = "neg" /><br>
+		<p style="text-align:center;">Marks for Correct Answer: <input name = "pos" id = "CorrAns"/>
+		<p style="text-align:center;">Negative Marks for Wrong Answer: <input name = "neg" id = "InCorrAns" /><br>
 		<button type = "submit" onclick = "Default()">Upload</button>
-		<p style="text-align:center;"><button type="submit" name="roll wise">Generate Roll Number Wise Marksheet</button>
+		<p style="text-align:center;"><button type="submit" name="roll wise" >Generate Roll Number Wise Marksheet</button>
 		<p style="text-align:center;"><button type="submit" name="concise" >Generate Concise Marksheet</button>
-		<p style="text-align:center;"><button type="submit" name="mail">Send Email</button>	
+		<p style="text-align:center;"><button type="submit" name="mail" >Send Email</button>	
 		<p>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
