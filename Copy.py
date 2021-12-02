@@ -99,7 +99,7 @@ def file():
          flash('Concise Marksheet generated')
 
       if "mail" in request.form:
-          if os.path.exists(customUtils.rootDir):
+          if os.path.exists(customUtils.rootDir) and customUtils.canSendEmails:
              rmMap = customUtils.rollEmailMap
              print("Printing rolMap")
 
@@ -113,7 +113,7 @@ def file():
                print("-------------")
                print("INVALID ENTRY")
                print("-------------")
-               flash("Please generate result first!")
+               flash("Please generate roll number wise marksheet first!")
 
 
    return redirect('/')
