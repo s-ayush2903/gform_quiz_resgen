@@ -17,8 +17,7 @@ baseDir = os.path.join(pwd, "assets")
 uploadDir = os.path.join(pwd, "uploads")
 fle = os.path.join(uploadDir, "responses.csv")
 master = os.path.join(uploadDir, "master_roll.csv")
-rootDir = os.path.join(pwd, "ans")
-ansDir = os.path.join(rootDir, "result")
+ansDir = os.path.join(pwd, "marksheets")
 
 absentNameRollMap, concMs, styless = {}, {}, {}
 canSendEmails = False
@@ -225,7 +224,7 @@ def processLeft():
 
 
 def prepareConciseMarksheet():
-    concMsFile = os.path.join(rootDir, "concise_marksheet.csv")
+    concMsFile = os.path.join(ansDir, "concise_marksheet.csv")
     lst = ""
     for ind in range(cors + left + wrong):
         lst += f"Unnamed {ind + 7},"
@@ -240,7 +239,7 @@ def prepareConciseMarksheet():
 
 
 def archiveRes():
-    shutil.make_archive("result", "zip", rootDir)
+    shutil.make_archive("Marksheets", "zip", pwd)
     return True
 
 

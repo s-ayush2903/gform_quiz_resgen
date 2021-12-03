@@ -40,20 +40,20 @@ def file():
    if request.method == 'POST':
       rf = str(request.files)
       if ('files[]' not in rf) or ('octet-stream' in rf) and (not os.listdir(UPLOAD_FOLDER)):
-          flash('No file part')
+          flash('Please upload files')
           return redirect("/")
 
       files = request.files.getlist('files[]')
-      print(f"---files: {files}")
-      print(f"canSendEmails#1: {customUtils.canSendEmails}")
+      #print(f"---files: {files}")
+      #print(f"canSendEmails#1: {customUtils.canSendEmails}")
 
-      print(type(request.form['pos']))
+      #print(type(request.form['pos']))
 
 
       rp = request.form['pos']
       rn = request.form['neg']
 
-      print(f"rp: {rp} | rn {rn}")
+      #print(f"rp: {rp} | rn {rn}")
 
       if '.' in request.form['pos']:
           correctPoints = float(rp).__round__(2)
@@ -69,16 +69,16 @@ def file():
       else: 
          incorrectPoints = customUtils.cachedNm
 
-      print("=============")
-      print(f"{correctPoints}|{incorrectPoints}")
-      print("=============")
+      #print("=============")
+      #print(f"{correctPoints}|{incorrectPoints}")
+      #print("=============")
 
       customUtils.cachedPm = correctPoints
       customUtils.cachedNm = incorrectPoints
 
-      print("-------")
-      print(f"cachedPm: {customUtils.cachedPm}")
-      print("-------")
+      #print("-------")
+      #print(f"cachedPm: {customUtils.cachedPm}")
+      #print("-------")
 
       for file in files:
          if file and allowed_file(file.filename):
@@ -88,31 +88,28 @@ def file():
 
       if "roll wise" in request.form:
          customUtils.canSendEmails = True
-         print(f"canSendEmails#2: {customUtils.canSendEmails}")
+         #print(f"canSendEmails#2: {customUtils.canSendEmails}")
          customUtils.mainFn(correctPoints, incorrectPoints)
          flash('Roll Number Wise Marksheet generated')
 
       if "concise" in request.form:
          customUtils.canSendEmails = True
-         print(f"canSendEmails#3: {customUtils.canSendEmails}")
+         #print(f"canSendEmails#3: {customUtils.canSendEmails}")
          customUtils.callConcise(correctPoints, incorrectPoints)
          flash('Concise Marksheet generated')
 
       if "mail" in request.form:
-          if os.path.exists(customUtils.rootDir) and customUtils.canSendEmails:
+          if os.path.exists(customUtils.ansDir) and customUtils.canSendEmails:
              rmMap = customUtils.rollEmailMap
-             print("Printing rolMap")
-
-             for roll in rmMap:
-                 print(roll, rmMap[roll])
+             #print("Printing rolMap")
 
              sendmails(rmMap)
              flash('Mails done')
              customUtils.canSendEmails = False
           else:
-               print("-------------")
-               print("INVALID ENTRY")
-               print("-------------")
+               #print("-------------")
+               #print("INVALID ENTRY")
+               #print("-------------")
                flash("Please generate roll number wise marksheet first!")
 
 
