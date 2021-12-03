@@ -10,6 +10,16 @@
 			-ms-transform: translate(-50%, -50%);
 			transform: translate(-50%, -50%);
 		}
+		.row 
+		{
+			display: flex;
+		}
+			/* Create two equal columns that sits next to each other */
+		.column 
+		{
+			flex: 50%;
+			padding: 10px;
+		}
 		</style>
 		<script>
 		function Default()
@@ -28,13 +38,13 @@
 	<body>
 	<div class="center">
         <img src={{url_for('static',filename = '/instiLogo.jpeg')}} alt="Institue Logo"><br><br><br>
-	<form action = "http://localhost:5000/" method = "POST" enctype = "multipart/form-data">
-		<p style="text-align:center;">Upload Files(Master_Roll.CSV & Respone.CSV) <input type = "file" name = "files[]" multiple="true"/>
-		<p style="text-align:center;">Marks for Correct Answer: <input name = "pos" id = "CorrAns"/>
-		<p style="text-align:center;">Negative Marks for Wrong Answer: <input name = "neg" id = "InCorrAns" /><br>
+		<form action = "http://localhost:5000/" method = "POST" enctype = "multipart/form-data">
+		<p style="text-align:center;"><big><b>Upload Files</b></big>(Master_Roll.CSV & Respone.CSV) <input type = "file" name = "files[]" multiple="true"/>
+		<p style="text-align:center;"><big><b><b>Marks for Correct Answer: </b></big><input name = "pos" id = "CorrAns"/>
+		<p style="text-align:center;"><big><b><b>Negative Marks for Wrong Answer: </b></big><input name = "neg" id = "InCorrAns" /><br><br><br>
 		<button type = "submit" onclick = "Default()">Upload</button>
-		<p style="text-align:center;"><button type="submit" name="roll wise" >Generate Roll Number Wise Marksheet</button>
-		<p style="text-align:center;"><button type="submit" name="concise" >Generate Concise Marksheet</button>
+		<p style="text-align:center;"><button type="submit" name="roll wise">Generate Roll Number Wise Marksheet</button>
+		<p style="text-align:center;"><button type="submit" name="concise">Generate Concise Marksheet</button>
 		<p style="text-align:center;"><button type="submit" name="mail" >Send Email</button>	
 		<p>
     {% with messages = get_flashed_messages() %}
