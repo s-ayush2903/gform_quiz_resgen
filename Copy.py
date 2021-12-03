@@ -1,6 +1,6 @@
 import customUtils
 import os      # For File Manipulations like get paths, rename
-from flask import Flask, flash, request, redirect, render_template
+from flask import Flask, flash, request, redirect, render_template, send_file
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
 import shutil
@@ -8,7 +8,7 @@ import csv
 import openpyxl
 from openpyxl.drawing.image import Image
 from openpyxl.styles import Alignment, Border, Font, NamedStyle, Side
-import os
+
 
 path = os.getcwd()
 app=Flask(__name__, static_folder=customUtils.baseDir)
@@ -20,11 +20,6 @@ app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024
 # file Upload
 UPLOAD_FOLDER = os.path.join(path, 'uploads')
 
-# Make directory if "uploads" folder not exists
-if os.path.exists(UPLOAD_FOLDER):
-    shutil.rmtree(UPLOAD_FOLDER)
-os.mkdir(UPLOAD_FOLDER)
-
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = set(['csv', 'xlsx'])
 def allowed_file(filename):
@@ -33,6 +28,16 @@ def allowed_file(filename):
 @app.route('/')
 def upload_form():
    return render_template('upload.html')
+
+@app.route('/download', methods=['GET', 'POST'])
+def push_file():
+   resp = customUtils.archiveRes()
+   if resp:
+      file_path = os.path.join(os.getcwd(), "marksheets.zip")
+      return send_file(file_path, as_attachment=True)
+   else:
+      flash("Generate Concise Marksheet First")
+      return redirect("/")
 
 @app.route('/', methods=['GET','POST'])
 def file():
@@ -61,10 +66,15 @@ def file():
             flash('File(s) successfully uploaded')
          else: 
             finfo = True
-            flash("Please upload the required files!")
-            return redirect('/')
+            if os.path.exists(customUtils.fle) and os.path.exists(customUtils.master):
+                pass
+            else:
+                flash("Please browse all the required files!")
       elif not finfo:
-         flash("Please upload the required files!")
+        if os.path.exists(customUtils.fle) and os.path.exists(customUtils.master):
+            pass
+        else:
+            flash("Please browse all the required files!")
       #print(f"---files: {files}")
       #print(f"canSendEmails#1: {customUtils.canSendEmails}")
 
@@ -106,7 +116,7 @@ def file():
 
       if "roll wise" in request.form:
          #print(f"canSendEmails#2: {customUtils.canSendEmails}")
-        if len(files) == 2:
+        if os.path.exists(customUtils.fle) and os.path.exists(customUtils.master):
             customUtils.canSendEmails = True
             customUtils.mainFn(correctPoints, incorrectPoints)
             flash('Roll Number Wise Marksheet generated')
@@ -120,6 +130,10 @@ def file():
             customUtils.callConcise(correctPoints, incorrectPoints)
                 #print("Printing rolMap")
             flash('Concise Marksheet generated')
+            # Make directory if "uploads" folder not exists
+            if os.path.exists(UPLOAD_FOLDER):
+                shutil.rmtree(UPLOAD_FOLDER)
+            os.mkdir(UPLOAD_FOLDER)
         else:
             print("-------------")
             print("INVALID ENTRY")
