@@ -56,7 +56,6 @@ def getStyle(style):
         if style != "ltitle" and style != "rtitle":
             baseStyle.border = Border(bd, bd, bd, bd)
         styless[style] = baseStyle
-    # print(f"styless: {styless}")
     return styless[style]
 
 
@@ -163,7 +162,7 @@ def prepareQuizResult(rollNo, line=[], absent=False):
                 if inr == 10:
                     sheet[col + str(inr)] = wrong
                 elif inr == 11:
-                    sheet[col + str(inr)] = -1 * incorPoints
+                    sheet[col + str(inr)] = incorPoints
                 elif inr == 12:
                     sheet[col + str(inr)] = (sheet["C10"].value) * (sheet["C11"].value)
                 sheet[col + str(inr)].style = getStyle("incorrect")
@@ -173,7 +172,7 @@ def prepareQuizResult(rollNo, line=[], absent=False):
     sheet["E10"].style = getStyle("normal")
     sheet["D11"] = 0
     sheet["D10"].style = getStyle("normal")
-    marks = (cors) * (corPoints) - (wrong) * (incorPoints)
+    marks = ((cors * corPoints) + (wrong * incorPoints)).__round__(2)
     tmarks = (cors + left + wrong) * (corPoints)
     mstr = str(marks) + "/" + str(tmarks)
     sheet["E12"] = mstr if not absent else "Absent"
@@ -205,7 +204,6 @@ def prepareResultForPresentStudents() -> bool:
                 for _ in line[7:]:
                     ans.append(_.strip())
             else:
-                print("fy")
                 return False
         fileName = os.path.join(ansDir, line[6] + ".xlsx")
         if index > 1:
@@ -218,7 +216,7 @@ def processLeft():
     for index, conts in enumerate(csv.reader(open(master))):
         if index > 1:
             if f"{conts[0].upper()}.xlsx" not in files:
-                print(f"noo, not found: {conts[0].upper()}")
+                # print(f"noo, not found: {conts[0].upper()}")
                 absentNameRollMap[conts[0]] = conts[1]
                 prepareQuizResult(conts[0], absent=True)
 
@@ -256,7 +254,6 @@ def mainFn(cpts, incPts):
         # print(os.listdir(ansDir))
     else:
         return false
-        print("fy and grow up")
 
 def callConcise(cpts, incPts):
     if not rollWiseDone:

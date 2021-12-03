@@ -74,25 +74,27 @@ def file():
       rp = request.form['pos']
       rn = request.form['neg']
 
-      #print(f"rp: {rp} | rn {rn}")
-
       if '.' in request.form['pos']:
           correctPoints = float(rp).__round__(2)
+          if correctPoints < 0:
+              correctPoints = correctPoints * -1
       elif rp != "":
           correctPoints = int(rp)
+          if correctPoints < 0:
+              correctPoints = correctPoints * -1
       else:
          correctPoints = customUtils.cachedPm
 
       if '.' in request.form['neg']:
           incorrectPoints = float(rn).__round__(2)
+          if incorrectPoints > 0:
+              incorrectPoints = (incorrectPoints * -1)
       elif rn != "":
           incorrectPoints = int(rn)
+          if incorrectPoints > 0:
+              incorrectPoints = (incorrectPoints * -1)
       else: 
          incorrectPoints = customUtils.cachedNm
-
-      #print("=============")
-      #print(f"{correctPoints}|{incorrectPoints}")
-      #print("=============")
 
       customUtils.cachedPm = correctPoints
       customUtils.cachedNm = incorrectPoints
