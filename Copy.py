@@ -19,6 +19,9 @@ app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024
 
 # file Upload
 UPLOAD_FOLDER = os.path.join(path, 'uploads')
+if os.path.exists(UPLOAD_FOLDER):
+    shutil.rmtree(UPLOAD_FOLDER)
+os.mkdir(UPLOAD_FOLDER)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = set(['csv', 'xlsx'])
@@ -131,9 +134,6 @@ def file():
                 #print("Printing rolMap")
             flash('Concise Marksheet generated')
             # Make directory if "uploads" folder not exists
-            if os.path.exists(UPLOAD_FOLDER):
-                shutil.rmtree(UPLOAD_FOLDER)
-            os.mkdir(UPLOAD_FOLDER)
         else:
             print("-------------")
             print("INVALID ENTRY")
