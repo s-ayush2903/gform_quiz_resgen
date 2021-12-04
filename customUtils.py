@@ -182,13 +182,7 @@ def prepareQuizResult(rollNo, line=[], absent=False):
     nstr = str(marks) + "/" + str(tmarks)
     sheet["E12"] = mstr if not absent else "Absent"
     sheet["E12"].style = getStyle("absolute")
-    concMs[rollNo] = str(
-        str(cors * corPoints)
-        + ","
-        + str(wrong * incorPoints)
-        + ","
-        + sheet["E12"].value
-    )
+    concMs[rollNo] = str(str(cors * corPoints)+ "," + str(wrong * incorPoints) + "," + sheet["E12"].value)
 
     for ind in range(6):
         if rollNo not in cmsList:
@@ -202,6 +196,7 @@ def prepareQuizResult(rollNo, line=[], absent=False):
     if rollNo not in summr:
         summr[rollNo] = []
     summr[rollNo] = [cors, wrong, left]
+
     sheet.title = "quiz"
     wb.save(fileName)
     return str(cors * corPoints) if not absent else ""
@@ -246,7 +241,7 @@ def prepareConciseMarksheet():
         cmfObj.write(f"Timestamp,Email Address,Google_Score,Name,IITP webmail,Phone(10 digit only),Score_After_Negative,Roll Number,{str(lst)}statusAns")
         for roll in concMs:
             cmfObj.write("\n")
-            cmfObj.write(str(cmsList[roll] + "," + roll + "," + ansList[roll] + str(summr[roll])))
+            cmfObj.write(str(cmsList[roll] + "," + roll + "," + ansList[roll] + '"' + str(summr[roll]) + '"')) 
     return concMs
 
 
