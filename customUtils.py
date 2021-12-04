@@ -178,8 +178,8 @@ def prepareQuizResult(rollNo, line=[], absent=False):
     corrmarks = (cors * corPoints).__round__(2)
     marks = ((cors * corPoints) + (wrong * incorPoints)).__round__(2)
     tmarks = ((cors + left + wrong) * (corPoints)).__round__(2)
-    mstr = str(corrmarks) + "/" + str(tmarks)
-    nstr = str(marks) + "/" + str(tmarks)
+    mstr = str(corrmarks) + " / " + str(tmarks)
+    nstr = str(marks) + " / " + str(tmarks)
     sheet["E12"] = mstr if not absent else "Absent"
     sheet["E12"].style = getStyle("absolute")
     concMs[rollNo] = str(str(cors * corPoints)+ "," + str(wrong * incorPoints) + "," + sheet["E12"].value)
