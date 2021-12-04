@@ -1,6 +1,6 @@
 import customUtils
 import os      # For File Manipulations like get paths, rename
-from flask import Flask, flash, request, redirect, render_template
+from flask import Flask, flash, request, redirect, render_template, send_file
 from werkzeug.utils import secure_filename
 from flask_mail import Mail, Message
 import shutil
@@ -8,7 +8,7 @@ import csv
 import openpyxl
 from openpyxl.drawing.image import Image
 from openpyxl.styles import Alignment, Border, Font, NamedStyle, Side
-import os
+
 
 path = os.getcwd()
 app=Flask(__name__, static_folder=customUtils.baseDir)
@@ -20,11 +20,6 @@ app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024
 # file Upload
 UPLOAD_FOLDER = os.path.join(path, 'uploads')
 
-# Make directory if "uploads" folder not exists
-if os.path.exists(UPLOAD_FOLDER):
-    shutil.rmtree(UPLOAD_FOLDER)
-os.mkdir(UPLOAD_FOLDER)
-
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = set(['csv', 'xlsx'])
 def allowed_file(filename):
@@ -34,16 +29,52 @@ def allowed_file(filename):
 def upload_form():
    return render_template('upload.html')
 
+@app.route('/download', methods=['GET', 'POST'])
+def push_file():
+   resp = customUtils.archiveRes()
+   if resp:
+      file_path = os.path.join(os.getcwd(), "marksheets.zip")
+      return send_file(file_path, as_attachment=True)
+   else:
+      flash("Generate Concise Marksheet First")
+      return redirect("/")
+
 @app.route('/', methods=['GET','POST'])
 def file():
-   global correctPoints, incorrectPoints
+   global correctPoints, incorrectPoints, email, password
    if request.method == 'POST':
+      finfo = False
+      rejForm = 'application/octet-stream' 
       rf = str(request.files)
-      if ('files[]' not in rf) or ('octet-stream' in rf) and (not os.listdir(UPLOAD_FOLDER)):
-          flash('Please upload files')
-          return redirect("/")
+      if 'files[]' not in request.files:
+          flash('No file part')
+          return redirect(request.url)
+      #if ('files[]' not in rf) or ('octet-stream' in rf) and (not os.listdir(UPLOAD_FOLDER)):
+          #flash('Please upload files')
+          #return redirect("/")
 
       files = request.files.getlist('files[]')
+      if rejForm not in str(files):
+         if len(files) == 2:
+            for file in files :
+               print(f"{file} || {type(file)}")
+               if file and allowed_file(file.filename):
+                  filename = secure_filename(file.filename)
+                  print(file)
+                  print("***********8")
+                  file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            flash('File(s) successfully uploaded')
+         else: 
+            finfo = True
+            if os.path.exists(customUtils.fle) and os.path.exists(customUtils.master):
+                pass
+            else:
+                flash("Please browse all the required files!")
+      elif not finfo:
+        if os.path.exists(customUtils.fle) and os.path.exists(customUtils.master):
+            pass
+        else:
+            flash("Please browse all the required files!")
       #print(f"---files: {files}")
       #print(f"canSendEmails#1: {customUtils.canSendEmails}")
 
@@ -78,51 +109,66 @@ def file():
       customUtils.cachedPm = correctPoints
       customUtils.cachedNm = incorrectPoints
 
-      for file in files:
-         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            flash('File(s) successfully uploaded')
+      #print("-------")
+      #print(f"cachedPm: {customUtils.cachedPm}")
+      #print("-------")
+
 
       if "roll wise" in request.form:
-         customUtils.canSendEmails = True
          #print(f"canSendEmails#2: {customUtils.canSendEmails}")
-         customUtils.mainFn(correctPoints, incorrectPoints)
-         flash('Roll Number Wise Marksheet generated')
+        if os.path.exists(customUtils.fle) and os.path.exists(customUtils.master):
+            customUtils.canSendEmails = True
+            customUtils.mainFn(correctPoints, incorrectPoints)
+            flash('Roll Number Wise Marksheet generated')
+        else:
+            flash('Please upload the required files!')
 
       if "concise" in request.form:
-         customUtils.canSendEmails = True
          #print(f"canSendEmails#3: {customUtils.canSendEmails}")
-         customUtils.callConcise(correctPoints, incorrectPoints)
-         flash('Concise Marksheet generated')
+        if os.path.exists(customUtils.ansDir) and os.path.exists(customUtils.fle) and os.path.exists(customUtils.master):
+            customUtils.canSendEmails = True
+            customUtils.callConcise(correctPoints, incorrectPoints)
+                #print("Printing rolMap")
+            flash('Concise Marksheet generated')
+            # Make directory if "uploads" folder not exists
+            if os.path.exists(UPLOAD_FOLDER):
+                shutil.rmtree(UPLOAD_FOLDER)
+            os.mkdir(UPLOAD_FOLDER)
+        else:
+            print("-------------")
+            print("INVALID ENTRY")
+            print("-------------")
+            flash("Please generate Roll Number Wise Marksheet First!")
 
       if "mail" in request.form:
-          if os.path.exists(customUtils.ansDir) and customUtils.canSendEmails:
-             rmMap = customUtils.rollEmailMap
+        if email == "" and password == "":
+            flash("Please enter your email and password in code")
+            
+        else:
+            if os.path.exists(customUtils.ansDir) and customUtils.canSendEmails:
+                rmMap = customUtils.rollEmailMap
+                #print("Printing rolMap")
 
-             for roll in rmMap:
-                 print(roll, rmMap[roll])
-
-             sendmails(rmMap)
-             flash('Mails done')
-             customUtils.canSendEmails = False
-          else:
+                sendmails(rmMap)
+                flash('Mails done')
+                customUtils.canSendEmails = False
+            else:
                #print("-------------")
                #print("INVALID ENTRY")
                #print("-------------")
-               flash("Please generate roll number wise marksheet first!")
-
+              flash("Please generate Roll Number Wise Marksheet First!")
 
    return redirect('/')
 
 mail = Mail(app) # instantiate the mail class
 
 # configuration of mail
-senda = "" # enter your email address here
+email = ""
+password = "" 
 app.config['MAIL_SERVER']='stud.iitp.ac.in'
 app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = '' # enter your email here
-app.config['MAIL_PASSWORD'] = '' # enter your password here
+app.config['MAIL_USERNAME'] = email # enter your email here
+app.config['MAIL_PASSWORD'] = password # enter your password here
 app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 mail = Mail(app)
@@ -133,7 +179,7 @@ def sendmails(rollMailMap):
     ansDir = os.path.join(os.getcwd(), "ans")
     resultDir = os.path.join(ansDir, "result")
     for key in rollMailMap:
-        msg = Message("Quiz Result Out", sender=senda, recipients=[rollMailMap[key]])
+        msg = Message("Quiz Result Out", sender=email, recipients=[rollMailMap[key]])
         msg.body = f"Dear Student,\nCSXXX 20XX recent paper marks are attached for reference.\n+{correctPoints} Correct, -{incorrectPoints} for wrong."
         resFileName = os.path.join(resultDir, str(key) + ".xlsx")
         with app.open_resource(resFileName) as fp:
@@ -143,4 +189,13 @@ def sendmails(rollMailMap):
    # return 'Sent'
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
+
+
+"""
+Blue:  #0000ff
+Red:   #ff0000
+Green: #008000
+Black: #272727
+Font:  Century | 12 & 18 font sizes
+"""
