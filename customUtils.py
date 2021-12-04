@@ -175,9 +175,11 @@ def prepareQuizResult(rollNo, line=[], absent=False):
     sheet["E10"].style = getStyle("normal")
     sheet["D11"] = 0
     sheet["D10"].style = getStyle("normal")
+    corrmarks = (cors * corPoints).__round__(2)
     marks = ((cors * corPoints) + (wrong * incorPoints)).__round__(2)
     tmarks = ((cors + left + wrong) * (corPoints)).__round__(2)
-    mstr = str(marks) + "/" + str(tmarks)
+    mstr = str(corrmarks) + "/" + str(tmarks)
+    nstr = str(marks) + "/" + str(tmarks)
     sheet["E12"] = mstr if not absent else "Absent"
     sheet["E12"].style = getStyle("absolute")
     concMs[rollNo] = str(
@@ -192,11 +194,11 @@ def prepareQuizResult(rollNo, line=[], absent=False):
         if rollNo not in cmsList:
             cmsList[rollNo] = ""
         if ind == 2:
-            cmsList[rollNo] += f"{str(marks)}," if not absent else ","
+            cmsList[rollNo] += f"{str(mstr)}," if not absent else ","
         else:
             cmsList[rollNo] += f"{line[ind]}," if not absent else ","
     
-    cmsList[rollNo] += f"{marks}"
+    cmsList[rollNo] += f"{nstr}"
     if rollNo not in summr:
         summr[rollNo] = []
     summr[rollNo] = [cors, wrong, left]
@@ -218,7 +220,7 @@ def prepareResultForPresentStudents() -> bool:
             else:
                 return False
         fileName = os.path.join(ansDir, line[6] + ".xlsx")
-        if index > 1:
+        if index > 0:
             prepareQuizResult(line[6], line)
     return True
 
@@ -261,16 +263,16 @@ def mainFn(cpts, incPts):
     if response:
         rollWiseDone = True
     else:
-        return false
+        return False
 
 def callConcise(cpts, incPts):
-    if not rollWiseDone:
-        mainFn(cpts, incPts)
+    #if not rollWiseDone:
+        #mainFn(cpts, incPts)
     processLeft()
     prepareConciseMarksheet()
     # archiveRes()
     return True
 
-if __name__ =="__main__":
-    mainFn(4.2, 2)
-    callConcise(4.2, 2)
+#if __name__ =="__main__":
+    #mainFn(4.2, 2)
+    #callConcise(4.2, 2)
