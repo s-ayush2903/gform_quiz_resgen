@@ -268,7 +268,7 @@ def callConcise(cpts, incPts):
         mainFn(cpts, incPts)
     processLeft()
     prepareConciseMarksheet()
-    archiveRes()
+    # archiveRes()
     return True
 
 if __name__ =="__main__":

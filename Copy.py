@@ -21,9 +21,17 @@ app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024
 UPLOAD_FOLDER = os.path.join(path, 'uploads')
 msDir = os.path.join(path, "marksheets")
 cmsFileName = "concise_marksheet.csv"
+
 if os.path.exists(UPLOAD_FOLDER):
     shutil.rmtree(UPLOAD_FOLDER)
 os.mkdir(UPLOAD_FOLDER)
+
+cmsFilePath = os.path.join(msDir, cmsFileName)
+print(f"cmsFilePath {cmsFilePath}")
+
+if os.path.exists(cmsFilePath):
+    print(f"removing {cmsFilePath}")
+    os.remove(cmsFilePath)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = set(['csv', 'xlsx'])
@@ -37,9 +45,8 @@ def upload_form():
 @app.route('/download_concise_ms', methods=['GET', 'POST'])
 def push_file():
    print(os.path.join(msDir, cmsFileName))
-   if os.path.exists(os.path.join(msDir, cmsFileName)):
-      file_path = os.path.join(msDir, cmsFileName)
-      return send_file(file_path, as_attachment=True)
+   if os.path.exists(cmsFilePath):
+      return send_file(cmsFilePath, as_attachment=True)
    else:
       flash("Please Generate Concise Marksheet First")
       return redirect("/")
@@ -80,11 +87,6 @@ def file():
             pass
         else:
             flash("Please browse all the required files!")
-      #print(f"---files: {files}")
-      #print(f"canSendEmails#1: {customUtils.canSendEmails}")
-
-      #print(type(request.form['pos']))
-
 
       rp = request.form['pos']
       rn = request.form['neg']
@@ -98,7 +100,11 @@ def file():
           if correctPoints < 0:
               correctPoints = correctPoints * -1
       else:
-         correctPoints = customUtils.cachedPm
+          try:
+            correctPoints = customUtils.cachedPm
+          except AttributeError:
+              flash("Please input marks for correct questions!")
+              return redirect('/')
 
       if '.' in request.form['neg']:
           incorrectPoints = float(rn).__round__(2)
@@ -109,7 +115,11 @@ def file():
           if incorrectPoints > 0:
               incorrectPoints = (incorrectPoints * -1)
       else: 
-         incorrectPoints = customUtils.cachedNm
+         try:
+            incorrectPoints = customUtils.cachedNm
+         except AttributeError:
+             flash("Please input the marks for incorrect questions!")
+             return redirect('/')
 
       customUtils.cachedPm = correctPoints
       customUtils.cachedNm = incorrectPoints
