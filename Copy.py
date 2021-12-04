@@ -19,6 +19,8 @@ app.config['MAX_CONTENT_LENGTH'] = 4 * 1024 * 1024
 
 # file Upload
 UPLOAD_FOLDER = os.path.join(path, 'uploads')
+msDir = os.path.join(path, "marksheets")
+cmsFileName = "concise_marksheet.csv"
 if os.path.exists(UPLOAD_FOLDER):
     shutil.rmtree(UPLOAD_FOLDER)
 os.mkdir(UPLOAD_FOLDER)
@@ -32,14 +34,14 @@ def allowed_file(filename):
 def upload_form():
    return render_template('upload.html')
 
-@app.route('/download', methods=['GET', 'POST'])
+@app.route('/download_concise_ms', methods=['GET', 'POST'])
 def push_file():
-   resp = customUtils.archiveRes()
-   if resp:
-      file_path = os.path.join(os.getcwd(), "marksheets.zip")
+   print(os.path.join(msDir, cmsFileName))
+   if os.path.exists(os.path.join(msDir, cmsFileName)):
+      file_path = os.path.join(msDir, cmsFileName)
       return send_file(file_path, as_attachment=True)
    else:
-      flash("Generate Concise Marksheet First")
+      flash("Please Generate Concise Marksheet First")
       return redirect("/")
 
 @app.route('/', methods=['GET','POST'])
